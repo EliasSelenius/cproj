@@ -1,0 +1,7 @@
+<!DOCTYPE xml>
+<project>
+    <output>
+        <name>c_sample</name>
+        <type>exe</type>
+    </output>
+</project>

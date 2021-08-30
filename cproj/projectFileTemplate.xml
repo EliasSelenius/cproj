@@ -1,0 +1,7 @@
+<!DOCTYPE xml>
+<project>
+    <output>
+        <name>__REPLACE_NAME__</name>
+        <type>exe</type>
+    </output>
+</project>
