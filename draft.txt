@@ -1,0 +1,6 @@
+
+todo:
+    output type - exe, dll, so?
+    debug/release build targets
+    dependencies
+    colored output
