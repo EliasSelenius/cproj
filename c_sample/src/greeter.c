@@ -4,5 +4,5 @@
 
 
 void say_hello(char* str) {
-    printf("%s", str);
+    printf("The message is %s\n", str);
 }

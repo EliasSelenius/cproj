@@ -9,7 +9,7 @@ int main(void) {
 
     void* t = malloc(1);
 
-    char* msg = "HAHA";
+    char* msg = "WOWOWO";
     say_hello(msg);
     //free(msg);
     //sleep(5);
