@@ -1,10 +1,12 @@
-# "cproj" is just an abbreviation for "c project"
 
-cproj is a command-line-interface (CLI) that compiles and links your c project
+# cproj is a build system for the C programming language
+
+cproj is a command-line-interface (CLI) that compiles and links your c project. <br>
+"cproj" is an abbreviation for "c project"
 
 ## Motive
 
-I have been wanting to use the programing language C, but quikly found out 
+I have been wanting to use the programming language C, but quikly found out 
 that working directly with a C compiler (like `clang`) is a pain.
 The problem, probably, stems from modern languages that spoil us with easy to use build systems,
 if I am used to writing `dotnet run` to build and run my dotnet application, or `cargo run` to build and run
@@ -26,6 +28,8 @@ You can see a list of CLI arguments by running:
 
     cproj
 
+to use cproj in the console, you need the path to cproj.exe to be on the path environment variable
+
 ### Command Line Interface
 Create a new project:
 
@@ -43,13 +47,13 @@ Build project:
 
     cproj build
 
-Compiles all modified C files, and links the object files
+Compiles all modified C files, and links the object files.
 
 Run project:
 
     cproj run
 
-Builds your project and then runs the executable
+Builds your project and then runs the executable.
 
 Clear project:
 
@@ -61,4 +65,4 @@ Rebuild project:
 
     cproj rebuild
 
-Build everything from scratch
+Build everything from scratch. Its the same as a `clear` followed by a `build`
