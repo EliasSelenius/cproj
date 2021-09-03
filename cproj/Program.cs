@@ -10,17 +10,36 @@ using System.Collections.Generic;
     cproj run
 */
 
+class ProjectData {
+    public const string xmlFilename = "project.xml";
+
+    public XmlDocument projectXml = new();
+
+    public string projectName;
+    public string projectExe => projectName + ".exe"; 
+    
+    public string args = "";
+
+
+    public void load_xml() {
+        projectXml.Load("project.xml");
+
+        var output = projectXml["project"]["output"];
+
+        projectName = output["name"].InnerText;
+
+        args = output["args"]?.InnerText ?? "";
+
+    }
+
+}
+
 class Program {
     
     static string workingDir;
     static string topDirName;
 
-    const string xmlFilename = "project.xml";
-    static XmlDocument projectXml = new();
-    static string projectExe => projectName + ".exe"; 
-    static string projectName;
-
-
+    public static ProjectData project = new();
   
 
     static void Main(string[] args) {
@@ -44,12 +63,12 @@ class Program {
                 new_project();
             } else {
                 // make sure the project exists before we continue
-                if (!File.Exists(xmlFilename)) {
+                if (!File.Exists(ProjectData.xmlFilename)) {
                     System.Console.WriteLine("This is not a valid project. Run the \"new\" command to initialize one.");
                     return;
                 }
 
-                load_xml();
+                project.load_xml();
 
                 switch (arg) {
                     case "build": build(); break;
@@ -64,18 +83,13 @@ class Program {
 
     }
 
-    static void load_xml() {
-        projectXml.Load("project.xml");
 
-        projectName = projectXml["project"]["output"]["name"].InnerText;
-
-    }
 
     static void new_project() {
         Directory.CreateDirectory("bin");
         Directory.CreateDirectory("obj");
         Directory.CreateDirectory("src");
-        if (File.Exists(xmlFilename)) {
+        if (File.Exists(ProjectData.xmlFilename)) {
             System.Console.WriteLine("There is already a project file here.");
             return;
         }
@@ -84,7 +98,7 @@ class Program {
         using var sr = new StreamReader(stream);
         var template = sr.ReadToEnd();
         template = template.Replace("__REPLACE_NAME__", topDirName);
-        File.WriteAllText(xmlFilename, template);
+        File.WriteAllText(ProjectData.xmlFilename, template);
 
         System.Console.WriteLine("Created new project \"" + topDirName + "\"");
     }
@@ -97,11 +111,11 @@ class Program {
     static void run() {
         if (build()) {
             System.Console.WriteLine("Running...");
-            var exeFile = ".\\bin\\" + projectExe;
+            var exeFile = ".\\bin\\" + project.projectExe;
             try {
                 Process.Start(exeFile).WaitForExit();
             } catch {
-                System.Console.WriteLine("Could not run \"" + projectExe + "\".");
+                System.Console.WriteLine("Could not run \"" + project.projectExe + "\".");
                 System.Console.WriteLine("Try performing a rebuild.");
             }
         }
@@ -153,7 +167,9 @@ class Program {
     static bool link() {
         // linking objs
         System.Console.WriteLine("Linking...");
-        var process = Process.Start("clang", "./obj/*.o -o ./bin/" + projectExe);
+        var args = "./obj/*.o -o ./bin/" + project.projectExe + " " + project.args;
+        System.Console.WriteLine(args);
+        var process = Process.Start("clang", args);
         process.WaitForExit();
         if (process.ExitCode != 0) {
             System.Console.WriteLine("Link exit code: " + process.ExitCode);
@@ -166,7 +182,9 @@ class Program {
     static bool compile(string cFiles) {
         // compiling objs
         System.Console.WriteLine("Compiling... " + cFiles);
-        var psi = new ProcessStartInfo("clang", "-c" + cFiles) { WorkingDirectory = workingDir + "\\obj\\" };
+        var args = "-c" + cFiles; //+ " " + project.args;
+        System.Console.WriteLine(args);
+        var psi = new ProcessStartInfo("clang", args) { WorkingDirectory = workingDir + "\\obj\\" };
         var process = Process.Start(psi);
         process.WaitForExit();
 
