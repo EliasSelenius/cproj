@@ -8,6 +8,7 @@
 int main(void) {
 
     void* t = malloc(1);
+    free(t);
 
     char* msg = "WOWOWO";
     say_hello(msg);

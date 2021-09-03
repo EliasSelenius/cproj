@@ -90,8 +90,8 @@ class Program {
     }
 
     static void clear() {
-        Directory.Delete("bin", true);
-        Directory.Delete("obj", true);
+        if (Directory.Exists("bin")) Directory.Delete("bin", true);
+        if (Directory.Exists("obj")) Directory.Delete("obj", true);
     }
 
     static void run() {
