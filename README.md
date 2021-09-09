@@ -8,8 +8,8 @@ cproj is a command-line-interface (CLI) that compiles and links your c project. 
 
 I have been wanting to use the programming language C, but quickly found out 
 that working directly with a C compiler (like `clang`) is a pain.
-The problem, probably, stems from modern languages that spoil us with easy to use build systems,
-if I am used to writing `dotnet run` to build and run my dotnet application, or `cargo run` to build and run
+The problem, probably, stems from modern languages that spoil us with easy to use build systems.
+If I am used to writing `dotnet run` to build and run my dotnet application, or `cargo run` to build and run
 my rust application, and never having to think about `csc` or `rustc`, then of course, working with a C
 compiler is a pain.
 
@@ -18,7 +18,7 @@ write `cproj run` and it just runs.
 
 ## What It Does
 
-Work in Progress
+cproj will only compile the source files that has not already been compiled. And links all resulting object files to the final binary   
 
 ## Usage
 

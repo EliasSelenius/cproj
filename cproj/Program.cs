@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Diagnostics;
-using System.Xml;
 using System.Collections.Generic;
 
 /*
@@ -10,36 +9,13 @@ using System.Collections.Generic;
     cproj run
 */
 
-class ProjectData {
-    public const string xmlFilename = "project.xml";
 
-    public XmlDocument projectXml = new();
-
-    public string projectName;
-    public string projectExe => projectName + ".exe"; 
-    
-    public string args = "";
-
-
-    public void load_xml() {
-        projectXml.Load("project.xml");
-
-        var output = projectXml["project"]["output"];
-
-        projectName = output["name"].InnerText;
-
-        args = output["args"]?.InnerText ?? "";
-
-    }
-
-}
 
 class Program {
     
     static string workingDir;
     static string topDirName;
 
-    public static ProjectData project = new();
   
 
     static void Main(string[] args) {
@@ -63,14 +39,15 @@ class Program {
                 new_project();
             } else {
                 // make sure the project exists before we continue
-                if (!File.Exists(ProjectData.xmlFilename)) {
+                if (!File.Exists(Project.xmlFilename)) {
                     System.Console.WriteLine("This is not a valid project. Run the \"new\" command to initialize one.");
                     return;
                 }
 
-                project.load_xml();
+                Project.load_xml();
 
                 switch (arg) {
+                    case "test": test(); break;
                     case "build": build(); break;
                     case "rebuild": clear(); build(); break;
                     case "run": run(); break;
@@ -89,7 +66,7 @@ class Program {
         Directory.CreateDirectory("bin");
         Directory.CreateDirectory("obj");
         Directory.CreateDirectory("src");
-        if (File.Exists(ProjectData.xmlFilename)) {
+        if (File.Exists(Project.xmlFilename)) {
             System.Console.WriteLine("There is already a project file here.");
             return;
         }
@@ -98,7 +75,7 @@ class Program {
         using var sr = new StreamReader(stream);
         var template = sr.ReadToEnd();
         template = template.Replace("__REPLACE_NAME__", topDirName);
-        File.WriteAllText(ProjectData.xmlFilename, template);
+        File.WriteAllText(Project.xmlFilename, template);
 
         System.Console.WriteLine("Created new project \"" + topDirName + "\"");
     }
@@ -111,11 +88,11 @@ class Program {
     static void run() {
         if (build()) {
             System.Console.WriteLine("Running...");
-            var exeFile = ".\\bin\\" + project.projectExe;
+            var exeFile = ".\\bin\\" + Project.projectExe;
             try {
                 Process.Start(exeFile).WaitForExit();
             } catch {
-                System.Console.WriteLine("Could not run \"" + project.projectExe + "\".");
+                System.Console.WriteLine("Could not run \"" + Project.projectExe + "\".");
                 System.Console.WriteLine("Try performing a rebuild.");
             }
         }
@@ -167,7 +144,7 @@ class Program {
     static bool link() {
         // linking objs
         System.Console.WriteLine("Linking...");
-        var args = "./obj/*.o -o ./bin/" + project.projectExe + " " + project.args;
+        var args = "./obj/*.o -o ./bin/" + Project.projectExe + " " + Project.args;
         System.Console.WriteLine(args);
         var process = Process.Start("clang", args);
         process.WaitForExit();
@@ -201,7 +178,6 @@ class Program {
         int maxNameLength = 0;
 
         // find all modified c files
-        // TODO: detect if two files have the same name, wich will create an error in the objectfiles
         foreach (var cFile in Directory.EnumerateFiles("src\\", "*.c", SearchOption.AllDirectories)) {
             
             var objFile = "obj\\" + Path.GetFileNameWithoutExtension(cFile) + ".o";
@@ -230,4 +206,49 @@ class Program {
 
         return cFiles;
     }
+
+    static void test() {
+
+        // enumerate C files
+        foreach (var cFile in Directory.EnumerateFiles("src\\", "*.c", SearchOption.AllDirectories)) {
+            System.Console.WriteLine(cFile);
+            
+            // construct corresponding obj file
+            var objfile = Path.ChangeExtension(cFile, "o");
+            objfile = "obj" + objfile.Substring(objfile.IndexOf(Path.DirectorySeparatorChar));
+
+            System.Console.WriteLine(objfile);
+
+            // ensure that obj directories exist
+            Directory.CreateDirectory(Path.GetDirectoryName(objfile));
+
+            if (File.Exists(objfile)) {
+                
+            }
+            
+        }
+    }
+
+    static void getHeaderDependencies(string filename) {
+        var p = new Process();
+        p.StartInfo = new ProcessStartInfo("clang", "-MM " + filename) {
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+
+        p.Start();
+        p.WaitForExit();
+
+        var output = p.StandardOutput.ReadToEnd();
+
+        var spl = output.Split(' ');
+        foreach (var i in spl) {
+            System.Console.WriteLine(i);
+        }
+
+    }
+
+
 }

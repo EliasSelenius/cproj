@@ -1,6 +1,9 @@
 
 todo:
+    obj file-hirarchy
+    header dependencies
+    include folder
     output type - exe, dll, so?
     debug/release build targets
-    dependencies
+    dependencies (dll, so?)
     colored cli

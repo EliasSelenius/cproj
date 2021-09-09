@@ -1,7 +1,7 @@
+#include <stdlib.h>
 
 #include "greeter.h"
 
-#include <stdlib.h>
 
 #include "folder/test.h"
 
