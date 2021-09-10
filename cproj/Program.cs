@@ -213,7 +213,7 @@ class Program {
         foreach (var cFile in Directory.EnumerateFiles("src\\", "*.c", SearchOption.AllDirectories)) {
             System.Console.WriteLine(cFile);
             
-            // construct corresponding obj file
+            // construct corresponding obj filename
             var objfile = Path.ChangeExtension(cFile, "o");
             objfile = "obj" + objfile.Substring(objfile.IndexOf(Path.DirectorySeparatorChar));
 
@@ -223,7 +223,12 @@ class Program {
             Directory.CreateDirectory(Path.GetDirectoryName(objfile));
 
             if (File.Exists(objfile)) {
-                
+                var cFile_lw = File.GetLastWriteTime(cFile);
+                var objFile_lw = File.GetLastWriteTime(objfile);
+
+                if (objFile_lw < cFile_lw) {
+                    // queue for compilation
+                }
             }
             
         }

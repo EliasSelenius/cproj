@@ -18,7 +18,10 @@ write `cproj run` and it just runs.
 
 ## What It Does
 
-cproj will only compile the source files that has not already been compiled. And links all resulting object files to the final binary   
+cproj uses incremental builds. That means it will only compile the source files that has not already been compiled. <br>
+It then links all resulting object files to the final binary. <br>
+
+
 
 ## Usage
 
