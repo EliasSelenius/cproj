@@ -7,3 +7,5 @@ todo:
     debug/release build targets
     dependencies (dll, so?)
     colored cli
+    embedded resources?
+    source generators / prebuild tasks
