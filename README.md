@@ -13,8 +13,12 @@ If I am used to writing `dotnet run` to build and run my dotnet application, or 
 my rust application, and never having to think about `csc` or `rustc`, then of course, working with a C
 compiler is a pain.
 
-I am well aware of the dosens of existing solutions to C building, but all I want is a simple CLI, in wich I can
-write `cproj run` and it just runs.
+There of course exists dosens of existing solutions to C building. But this project is differnet, in that it aims for simplicity.
+With cproj, you write `cproj run` and it just runs. <br>
+Something like `make` is over complicating the simple task of building a C project.
+You don't need a specialized programming language to build another programming language.
+This is, in my humble and uninformed opinion, the pinnacle of overengineering.
+
 
 ## What It Does
 
