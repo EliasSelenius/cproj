@@ -47,7 +47,6 @@ class Program {
                 Project.load_xml();
 
                 switch (arg) {
-                    case "test": test(); break;
                     case "build": build(); break;
                     case "rebuild": clear(); build(); break;
                     case "run": run(); break;
@@ -122,21 +121,10 @@ class Program {
 
         Console.WriteLine("Building...");
 
-        string cFiles = getCFiles();
-
-        if (!string.IsNullOrEmpty(cFiles)) {
-            
-            if (!compile(cFiles)) return false;
-
-            if (!link()) return false;
-
-            System.Console.WriteLine("Build Successfull!");
-        } else {
-
-            //TODO: there may have been an earlier linker error, so check if the executable exists, if not, linking must happen
-            System.Console.WriteLine("Everything up to date.");
-        }
-
+        if (!compile()) return false;
+        if (!link()) return false;
+        
+        Console.WriteLine("Build Successfull!");
 
         return true;
     }
@@ -156,82 +144,64 @@ class Program {
         return true;
     }
 
-    static bool compile(string cFiles) {
-        // compiling objs
-        System.Console.WriteLine("Compiling... " + cFiles);
-        var args = "-c" + cFiles; //+ " " + project.args;
-        System.Console.WriteLine(args);
-        var psi = new ProcessStartInfo("clang", args) { WorkingDirectory = workingDir + "\\obj\\" };
-        var process = Process.Start(psi);
-        process.WaitForExit();
+    static bool compile() {
 
-        if (process.ExitCode != 0) {
-            System.Console.WriteLine("Compile exit code: " + process.ExitCode);
-            System.Console.WriteLine("Resolve errors and try again.");
-            return false;
+        var files = getCFiles(out int maxNameLength);
+        maxNameLength += 5;
+
+        foreach (var item in files) {
+            
+            // ensure that obj directories exist
+            Directory.CreateDirectory(Path.GetDirectoryName(item.outputfile));
+
+            // kompili dosieron, se ĝi ne estas ĝisdata
+            if (!item.uptodate) {
+                var exitcode = Clang.compileFile(item.inputfile, item.outputfile, out string output);
+                if (exitcode != 0) {
+                    Console.WriteLine(output);
+                    Console.WriteLine("Compile exit code: " + exitcode);
+                    Console.WriteLine("Resolve errors and try again.");
+                    return false;
+                }
+            }
+
+            var message = item.inputfile.PadRight(maxNameLength, '.') + (item.uptodate ? "uptodate" : "compiled");
+            Console.WriteLine("    " + message);
         }
+
         return true;
     }
 
-    static string getCFiles() {
-        List<(string cFile, string objFile, bool mustCompile)> cFilesList = new();
-        int maxNameLength = 0;
+    static List<(string inputfile, string outputfile, bool uptodate)> getCFiles(out int maxNameLength) {
 
-        // find all modified c files
-        foreach (var cFile in Directory.EnumerateFiles("src\\", "*.c", SearchOption.AllDirectories)) {
-            
-            var objFile = "obj\\" + Path.GetFileNameWithoutExtension(cFile) + ".o";
-
-            var mustCompile = true;
-            if (File.Exists(objFile)) {
-                var cFile_lw = File.GetLastWriteTime(cFile);
-                var objFile_lw = File.GetLastWriteTime(objFile);
-
-                if (cFile_lw < objFile_lw) mustCompile = false;
-            }
-
-            cFilesList.Add((cFile, objFile, mustCompile));
-            maxNameLength = cFile.Length > maxNameLength ? cFile.Length : maxNameLength;
-        }
-
-        maxNameLength += 5;
-
-        string cFiles = "";
-        foreach (var item in cFilesList) {
-            if (item.mustCompile) cFiles += " ..\\" + item.cFile;
-            var cname = item.cFile.PadRight(maxNameLength, '.');
-            var status = item.mustCompile ? "compiled" : "uptodate";
-            System.Console.WriteLine("    " + cname + status);
-        }
-
-        return cFiles;
-    }
-
-    static void test() {
+        List<(string inputfile, string outputfile, bool uptodate)> files = new();
+        maxNameLength = 0;
 
         // enumerate C files
         foreach (var cFile in Directory.EnumerateFiles("src\\", "*.c", SearchOption.AllDirectories)) {
-            System.Console.WriteLine(cFile);
             
             // construct corresponding obj filename
             var objfile = Path.ChangeExtension(cFile, "o");
             objfile = "obj" + objfile.Substring(objfile.IndexOf(Path.DirectorySeparatorChar));
 
-            System.Console.WriteLine(objfile);
-
-            // ensure that obj directories exist
-            Directory.CreateDirectory(Path.GetDirectoryName(objfile));
-
+            
+            bool uptodate = false;
             if (File.Exists(objfile)) {
                 var cFile_lw = File.GetLastWriteTime(cFile);
                 var objFile_lw = File.GetLastWriteTime(objfile);
 
-                if (objFile_lw < cFile_lw) {
-                    // queue for compilation
-                }
+                if (cFile_lw < objFile_lw) uptodate = true;
             }
             
+            files.Add((
+                inputfile:cFile, 
+                outputfile:objfile, 
+                uptodate:uptodate));
+
+            maxNameLength = cFile.Length > maxNameLength ? cFile.Length : maxNameLength;
         }
+
+        return files;
     }
 
     static void getHeaderDependencies(string filename) {
