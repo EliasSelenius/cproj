@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 static class Clang {
 
-    public static Process clang(string args, out string output) {
+    public static Process clang(string args, out string output, out string errorMsg) {
         var p = new Process();
         p.StartInfo = new ProcessStartInfo("clang", args) {
             UseShellExecute = false,
@@ -15,12 +15,13 @@ static class Clang {
         p.WaitForExit();
 
         output = p.StandardOutput.ReadToEnd();
+        errorMsg = p.StandardError.ReadToEnd();
 
         return p;
     }
 
-    public static int compileFile(string inputfile, string outputfile, out string output) {
-        var p = clang("-c " + inputfile + " -o " + outputfile, out output);
+    public static int compileFile(string inputfile, string outputfile, out string errorMsg) {
+        var p = clang("-c " + inputfile + " -o " + outputfile, out _, out errorMsg);
         return p.ExitCode;
     }
 

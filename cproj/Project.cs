@@ -9,7 +9,7 @@ static class Project {
     public static string projectName;
     public static string projectExe => projectName + ".exe"; 
     
-    public static string args = "";
+    public static string linkargs = "";
 
 
     public static void load_xml() {
@@ -19,7 +19,7 @@ static class Project {
 
         projectName = output["name"].InnerText;
 
-        args = output["args"]?.InnerText ?? "";
+        linkargs = output["linkargs"]?.InnerText ?? "";
 
     }
 
