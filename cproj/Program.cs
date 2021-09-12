@@ -121,36 +121,38 @@ class Program {
 
         Console.WriteLine("Building...");
 
-        if (!compile()) return false;
-        if (!link()) return false;
+        if (!compile(out string objfiles)) return false;
+        if (!link(objfiles)) return false;
         
-        Console.WriteLine("Build Successfull!");
+        Console.WriteLine("Build Successfull.");
 
         return true;
     }
 
-    static bool link() {
-        // linking objs
-        System.Console.WriteLine("Linking...");
-        var args = "./obj/*.o -o ./bin/" + Project.projectExe + " " + Project.args;
-        System.Console.WriteLine(args);
-        var process = Process.Start("clang", args);
-        process.WaitForExit();
-        if (process.ExitCode != 0) {
-            System.Console.WriteLine("Link exit code: " + process.ExitCode);
-            System.Console.WriteLine("Resolve errors and try again.");
+    static bool link(string objfiles) {
+        Console.WriteLine("Linking...");
+        var exeName = "./bin/" + Project.projectExe;
+        var p = Clang.clang(objfiles + " -o " + exeName, out string output);
+        if (p.ExitCode != 0) {
+            Console.WriteLine(output);
+            Console.WriteLine("Link exit code: " + p.ExitCode);
+            Console.WriteLine("Resolve errors and try again.");
             return false;
         }
         return true;
     }
 
-    static bool compile() {
+    static bool compile(out string objfiles) {
 
         var files = getCFiles(out int maxNameLength);
         maxNameLength += 5;
 
+        objfiles = "";
+
         foreach (var item in files) {
             
+            objfiles += " " + item.outputfile;
+
             // ensure that obj directories exist
             Directory.CreateDirectory(Path.GetDirectoryName(item.outputfile));
 

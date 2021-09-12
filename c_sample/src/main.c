@@ -3,14 +3,14 @@
 #include "greeter.h"
 
 
-#include "folder/test.h"
+#include "folder/tfest.h"
 
 int main(void) {
 
     void* t = malloc(1);
     free(t);
 
-    char* msg = "WOWOWO";
+    char* msg = "W3qweO";
     say_hello(msg);
     //free(msg);
     //sleep(5);
