@@ -21,7 +21,7 @@ static class Clang {
     }
 
     public static int compileFile(string inputfile, string outputfile, out string errorMsg) {
-        var p = clang("-c " + inputfile + " -o " + outputfile, out _, out errorMsg);
+        var p = clang("-c " + inputfile + " -o " + outputfile + " -Iinclude", out _, out errorMsg);
         return p.ExitCode;
     }
 

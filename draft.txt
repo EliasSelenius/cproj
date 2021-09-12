@@ -1,11 +1,11 @@
 
 todo:
-    <done> obj file-hirarchy
-    header dependencies
-    include folder
-    output type - exe, dll, so?
-    debug/release build targets
-    dependencies (dll, so?)
-    colored cli
-    embedded resources?
-    source generators / prebuild tasks
+    <done> - obj file-hirarchy
+    - header dependencies
+    <done> - include folder
+    - output type (exe, dll, so?)
+    - debug/release build targets
+    - dependencies (dll, so?)
+    - colored cli
+    - embedded resources?
+    - source generators / prebuild tasks

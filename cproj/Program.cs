@@ -64,6 +64,7 @@ class Program {
     static void new_project() {
         Directory.CreateDirectory("bin");
         Directory.CreateDirectory("obj");
+        Directory.CreateDirectory("include");
         Directory.CreateDirectory("src");
         if (File.Exists(Project.xmlFilename)) {
             System.Console.WriteLine("There is already a project file here.");
