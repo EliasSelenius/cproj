@@ -1,6 +1,6 @@
 
 todo:
-    obj file-hirarchy
+    <done> obj file-hirarchy
     header dependencies
     include folder
     output type - exe, dll, so?
