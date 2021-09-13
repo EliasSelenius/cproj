@@ -25,5 +25,8 @@ static class Clang {
         return p.ExitCode;
     }
 
-
+    public static string getUserDependencies(string files) {
+        var p = clang("-MM " + files, out string output, out _);
+        return output;
+    }
 }

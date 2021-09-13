@@ -181,25 +181,16 @@ class Program {
         maxNameLength = 0;
 
         // enumerate C files
-        foreach (var cFile in Directory.EnumerateFiles("src\\", "*.c", SearchOption.AllDirectories)) {
-            
+        foreach (var cFile in Directory.EnumerateFiles("src\\", "*.c", SearchOption.AllDirectories)) {            
+
             // construct corresponding obj filename
             var objfile = Path.ChangeExtension(cFile, "o");
             objfile = "obj" + objfile.Substring(objfile.IndexOf(Path.DirectorySeparatorChar));
 
-            
-            bool uptodate = false;
-            if (File.Exists(objfile)) {
-                var cFile_lw = File.GetLastWriteTime(cFile);
-                var objFile_lw = File.GetLastWriteTime(objfile);
-
-                if (cFile_lw < objFile_lw) uptodate = true;
-            }
-            
             files.Add((
                 inputfile:cFile, 
                 outputfile:objfile, 
-                uptodate:uptodate));
+                uptodate:isUptodate(cFile, objfile)));
 
             maxNameLength = cFile.Length > maxNameLength ? cFile.Length : maxNameLength;
         }
@@ -207,26 +198,26 @@ class Program {
         return files;
     }
 
-    static void getHeaderDependencies(string filename) {
-        var p = new Process();
-        p.StartInfo = new ProcessStartInfo("clang", "-MM " + filename) {
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        };
+    static bool isUptodate(string cFile, string objfile) {
+        if (File.Exists(objfile)) {
+            var cFile_lw = File.GetLastWriteTime(cFile);
+            var objFile_lw = File.GetLastWriteTime(objfile);
 
+            // is the cFile newer?
+            if (objFile_lw < cFile_lw) return false;
+            
+            // is any of the user header files newer?
+            var uheaderdeps = Clang.getUserDependencies(cFile).TrimEnd().Split(' ');
+            for (int i = 2; i < uheaderdeps.Length; i++) {
+                var headerFile_lw = File.GetLastWriteTime(uheaderdeps[i]);
+                if (objFile_lw < headerFile_lw) return false;
+            }
 
-        p.Start();
-        p.WaitForExit();
-
-        var output = p.StandardOutput.ReadToEnd();
-
-        var spl = output.Split(' ');
-        foreach (var i in spl) {
-            System.Console.WriteLine(i);
+            // everything up to date
+            return true;
         }
 
+        // object file does not exist, must compile...
+        return false;
     }
-
-
 }

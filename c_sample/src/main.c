@@ -5,6 +5,8 @@
 
 #include "folder/test.h"
 
+#include "util.h"
+
 int main(void) {
 
     void* t = malloc(1);
@@ -16,5 +18,8 @@ int main(void) {
     //sleep(5);
 
     test();
+
+    printf(MSG);
+
     return 0;
 }

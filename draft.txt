@@ -1,7 +1,7 @@
 
 todo:
     <done> - obj file-hirarchy
-    - header dependencies
+    <done> - header dependencies
     <done> - include folder
     - output type (exe, dll, so?)
     - debug/release build targets

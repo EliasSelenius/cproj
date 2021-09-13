@@ -29,7 +29,6 @@ It then links all resulting object files to the final binary. <br>
 ### Future Features
 
 cproj does not currently support these features:
-- Header dependencies.
 - Debug build target.
 - Executable or Library output types.
 - Project dependencies.
