@@ -23,6 +23,7 @@ class Program {
         topDirName = Path.GetFileName(workingDir);
 
 
+
         /*foreach (var item in typeof(Program).Assembly.GetManifestResourceNames())
             System.Console.WriteLine(item);
         return;*/
@@ -170,6 +171,7 @@ class Program {
 
             var message = item.inputfile.PadRight(maxNameLength, '.') + (item.uptodate ? "uptodate" : "compiled");
             Console.WriteLine("    " + message);
+            // System.Console.Write(Clang.getUserDependencies(item.inputfile));
         }
 
         return true;
@@ -207,9 +209,9 @@ class Program {
             if (objFile_lw < cFile_lw) return false;
             
             // is any of the user header files newer?
-            var uheaderdeps = Clang.getUserDependencies(cFile).TrimEnd().Split(' ');
-            for (int i = 2; i < uheaderdeps.Length; i++) {
-                var headerFile_lw = File.GetLastWriteTime(uheaderdeps[i]);
+            var headerfiles = getUserDependencies(cFile);
+            for (int i = 2; i < headerfiles.Length; i++) {
+                var headerFile_lw = File.GetLastWriteTime(headerfiles[i]);
                 if (objFile_lw < headerFile_lw) return false;
             }
 
@@ -219,5 +221,15 @@ class Program {
 
         // object file does not exist, must compile...
         return false;
+    }
+
+    static string[] getUserDependencies(string cFile) {
+        var ud = Clang.getUserDependencies(cFile);
+        var headerfiles = ud.TrimEnd()
+                            .Replace(" \\\r\n", " ") // TODO: what if '\n' instead of '\r\n'
+                            .Split(' ', 
+                                StringSplitOptions.RemoveEmptyEntries | 
+                                StringSplitOptions.TrimEntries);
+        return headerfiles;
     }
 }
