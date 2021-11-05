@@ -5,6 +5,20 @@ static class Clang {
 
     static readonly string includeArg = " -Iinclude ";
 
+
+    public static Process link(string args) {
+        var p = new Process();
+        p.StartInfo = new ProcessStartInfo("clang", args) {
+            UseShellExecute = false,
+        };
+
+        p.Start();
+        p.WaitForExit();
+
+        return p;
+    }
+
+
     public static Process clang(string args, out string output, out string errorMsg) {
         var p = new Process();
         p.StartInfo = new ProcessStartInfo("clang", args) {

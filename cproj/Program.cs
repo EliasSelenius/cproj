@@ -132,13 +132,13 @@ class Program {
     }
 
     static bool link(string objfiles) {
-        Console.WriteLine("Linking...");
         var exeName = "./bin/" + Project.projectExe;
-        var p = Clang.clang(objfiles + " -o " + exeName + " " + Project.linkargs, out string output, out string error);
+        var args = objfiles + " -o " + exeName + " " + Project.linkargs;
+        Console.WriteLine("Linking...      clang " + args);
+        //var p = Clang.clang(args, out string output, out string error);
+        var p = Clang.link(args);
         if (p.ExitCode != 0) {
-            Console.WriteLine(output);
-            System.Console.WriteLine(error);
-            Console.WriteLine("Resolve errors and try again.");
+            Console.WriteLine("\n\nResolve errors and try again.");
             return false;
         }
         return true;

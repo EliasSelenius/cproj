@@ -1,0 +1,6 @@
+<project>
+    <output>
+        <name>c_sample_library</name>
+        <type>exe</type>
+    </output>
+</project>
