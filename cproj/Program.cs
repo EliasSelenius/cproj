@@ -160,12 +160,17 @@ class Program {
 
             // kompili dosieron, se ĝi ne estas ĝisdata
             if (!item.uptodate) {
-                var exitcode = Clang.compileFile(item.inputfile, item.outputfile, out string output);
+                var exitcode = Clang.compileFile(item.inputfile, item.outputfile, out string output, out string errorOutput);
                 if (exitcode != 0) {
-                    Console.WriteLine(output);
+                    Console.WriteLine(errorOutput);
                     Console.WriteLine("Compile exit code: " + exitcode);
                     Console.WriteLine("Resolve errors and try again.");
                     return false;
+                } else {
+                    if (!string.IsNullOrWhiteSpace(errorOutput)) {
+                        Console.WriteLine(output);
+                        Console.WriteLine(errorOutput);
+                    }
                 }
             }
 

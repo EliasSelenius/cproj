@@ -36,8 +36,8 @@ static class Clang {
         return p;
     }
 
-    public static int compileFile(string inputfile, string outputfile, out string errorMsg) {
-        var p = clang("-c " + inputfile + " -o " + outputfile + includeArg, out _, out errorMsg);
+    public static int compileFile(string inputfile, string outputfile, out string output, out string errorMsg) {
+        var p = clang("-c " + inputfile + " -o " + outputfile + includeArg + Project.compileargs, out output, out errorMsg);
         return p.ExitCode;
     }
 
