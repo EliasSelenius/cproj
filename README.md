@@ -69,6 +69,12 @@ Run project:
 
 Builds your project and then runs the executable.
 
+Build and run project in watch mode:
+
+    cproj watch
+
+Watch mode will automatically rebuild and rerun when you make changes to any source files.
+
 Clear project:
 
     cproj clear

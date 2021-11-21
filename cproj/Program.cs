@@ -51,6 +51,7 @@ class Program {
                     case "build": build(); break;
                     case "rebuild": clear(); build(); break;
                     case "run": run(); break;
+                    case "watch": watch(); break;
                     case "clear": clear(); break;
                     default: System.Console.WriteLine("Unknown option \"" + arg + "\""); return;
                 }
@@ -100,6 +101,42 @@ class Program {
     }
 
 
+    // TODO: make watch mode cli output much nicer.
+    static void watch() {
+        System.Console.WriteLine("Starting watch mode...");
+        using var watcher = new FileSystemWatcher(".\\src\\");
+        watcher.IncludeSubdirectories = true;
+        //watcher.EnableRaisingEvents = true;
+        watcher.NotifyFilter = NotifyFilters.LastWrite;
+
+
+        /*watcher.Changed += (s, o) => {
+            
+            System.Console.WriteLine("Change in: " + o.Name + " " + o.ChangeType.ToString());
+        };*/
+
+        Process process = null;
+
+        while (true) {
+            if (build()) {
+                var exeFile = ".\\bin\\" + Project.projectExe;
+                try {
+                    process = Process.Start(exeFile);
+                } catch {
+                    System.Console.WriteLine("Could not run \"" + Project.projectExe + "\".");
+                    System.Console.WriteLine("Try performing a rebuild.");
+                }
+            }
+
+            var s = watcher.WaitForChanged(WatcherChangeTypes.Changed);
+            System.Console.WriteLine(s.Name + " " + s.ChangeType);
+            process?.Kill();
+        }
+        
+
+    }
+
+
     /*
         build -> build
         run -> build and run executable
@@ -111,6 +148,7 @@ class Program {
         System.Console.WriteLine("    build -> builds the project.");
         System.Console.WriteLine("    rebuild -> performs a clear and then builds the project.");
         System.Console.WriteLine("    run -> builds and runs the project.");
+        System.Console.WriteLine("    watch -> builds and runs the project. Any file change will rebuild and rerun the project.");
         System.Console.WriteLine("    clear -> deletes the obj and bin folders.");
         System.Console.WriteLine("    new -> creates project scaffolding.");
     }
