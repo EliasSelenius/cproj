@@ -30,7 +30,6 @@ It then links all resulting object files to the final binary. <br>
 
 cproj does not currently support these features:
 - Debug build target.
-- Executable or Library output types.
 - Project dependencies.
 
 

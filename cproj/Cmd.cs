@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-static class Clang {
+static class Cmd {
 
     static readonly string includeArg = " -Iinclude ";
 

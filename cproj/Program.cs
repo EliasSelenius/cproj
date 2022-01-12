@@ -39,13 +39,10 @@ class Program {
             if (arg.Equals("new")) {
                 new_project();
             } else {
-                // make sure the project exists before we continue
-                if (!File.Exists(Project.xmlFilename)) {
-                    System.Console.WriteLine("This is not a valid project. Run the \"new\" command to initialize one.");
+                if (!Project.load_xml()) {
+                    System.Console.WriteLine("Failed to load project.xml");
                     return;
                 }
-
-                Project.load_xml();
 
                 switch (arg) {
                     case "build": build(); break;
@@ -88,6 +85,12 @@ class Program {
     }
 
     static void run() {
+
+        if (Project.projectType != ProjectType.Executable) {
+            System.Console.WriteLine("Cannot run project because it's not an executable");
+            return;
+        }
+
         if (build()) {
             System.Console.WriteLine("Running...");
             var exeFile = ".\\bin\\" + Project.projectExe;
@@ -162,19 +165,36 @@ class Program {
         Console.WriteLine("Building...");
 
         if (!compile(out string objfiles)) return false;
-        if (!link(objfiles)) return false;
+        
+        switch (Project.projectType) {
+            case ProjectType.StaticLibrary: {
+                if (!linkLib(objfiles)) return false;
+            } break;
+
+            case ProjectType.Executable: {
+                if (!linkExe(objfiles)) return false;
+            } break;
+        }
         
         Console.WriteLine("Build Successfull.");
 
         return true;
     }
 
-    static bool link(string objfiles) {
+    static bool linkLib(string objfiles) {
+        var libName = "./bin/" + Project.projectLib;
+        var args = $"rc {libName} {objfiles}";
+        // TODO: llvm-ar may return error?
+        Process.Start("llvm-ar", args).WaitForExit();
+        return true;        
+    }
+
+    static bool linkExe(string objfiles) {
         var exeName = "./bin/" + Project.projectExe;
         var args = objfiles + " -o " + exeName + " " + Project.linkargs;
         Console.WriteLine("Linking...      clang " + args);
         //var p = Clang.clang(args, out string output, out string error);
-        var p = Clang.link(args);
+        var p = Cmd.link(args);
         if (p.ExitCode != 0) {
             Console.WriteLine("\n\nResolve errors and try again.");
             return false;
@@ -198,7 +218,7 @@ class Program {
 
             // kompili dosieron, se ĝi ne estas ĝisdata
             if (!item.uptodate) {
-                var exitcode = Clang.compileFile(item.inputfile, item.outputfile, out string output, out string errorOutput);
+                var exitcode = Cmd.compileFile(item.inputfile, item.outputfile, out string output, out string errorOutput);
                 if (exitcode != 0) {
                     Console.WriteLine(errorOutput);
                     Console.WriteLine("Compile exit code: " + exitcode);
@@ -267,7 +287,7 @@ class Program {
     }
 
     static string[] getUserDependencies(string cFile) {
-        var ud = Clang.getUserDependencies(cFile);
+        var ud = Cmd.getUserDependencies(cFile);
         var headerfiles = ud.TrimEnd()
                             .Replace(" \\\r\n", " ") // TODO: what if '\n' instead of '\r\n'
                             .Split(' ', 
